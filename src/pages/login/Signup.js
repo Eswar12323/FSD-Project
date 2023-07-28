@@ -1,130 +1,116 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import basestyle from "../Base.module.css";
+import registerstyle from "./Register.module.css";
+import axios from "axios";
+import { useNavigate, NavLink } from "react-router-dom";
 
-function Signup() {
-  const [formValues, setFormValues] = useState('');
-  const [formErrors, setFormErrors] = useState({});
-  const [isSubmit, setIsSubmit] = useState(false);
+const Signup = (props) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [pass, setPass] = useState('');
+  
   const navigate = useNavigate();
+  const [details,setDetails] = useState([]);
+  useEffect(()=>{
+      fetchData();
+  },[]);
 
-  const handleChange = (event) => {
-    const { id, value } = event.target;
-    setFormValues({ ...formValues, [id]: value });
-    console.log(formValues);
-  };
+  const fetchData = async()=>{
+      try{
+      const response = await axios.get("http://127.0.0.1:2004/get");
+      setDetails(response.data);
+      console.log(response); 
+      }
+  catch(error){
+     console.log("error fetching data");
+  }
+};
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setFormErrors(validate(formValues));
-    if (formErrors.check === true) {
-      setIsSubmit(true);
-      navigate('/shop'); // Route to the success page
-    } else {
-      setIsSubmit(false);
-    }
-  };
-
-  const validate = (values) => {
-    const errors = {};
-    const reg = new RegExp('[0-9]');
-    const preg = new RegExp('[A-Z][A-Za-z0-9$_]+');
-    errors.check = true;
-    if (!values.username) errors.username = 'Please fill the column';
-    else if (values.username.length < 5) {
-      errors.check = false;
-      errors.username = 'Username must have a minimum of 5 characters';
-    } else if (reg.test(values.username)) {
-      errors.username = 'Username must contain only alphabets';
-    }
-    if (!values.email) {
-      errors.check = false;
-      errors.email = 'Please fill the email';
-    }
-
-    if (!values.password) {
-      errors.check = false;
-      errors.password = 'Please fill the password';
-    } else if (values.password.length < 5) {
-      errors.check = false;
-      errors.password = 'Password is weak';
-    }
-    return errors;
-  };
-
-  const renderSignup = (
-    <div className='form'>
-      <form onSubmit={handleSubmit}>
-        <div className='input-container1'>
-          <label>Enter your username</label>
-          <input
-            type='text'
-            id='username'
-            value={formValues.username}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <p style={{ color: 'red', fontWeight: 'bold' }}>{formErrors.username}</p>
-
-        <div className='input-container2'>
-          <label>Enter your email</label>
-          <input
-            type='email'
-            id='email'
-            value={formValues.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className='input-container1'>
-          <label>Enter your phone number</label>
-          <input
-            type='phone'
-            id='phone'
-            value={formValues.phone}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <p style={{ color: 'red', fontWeight: 'bold' }}>{formErrors.email}</p>
-
-        <div className='input-container2'>
-          <label>Enter your password</label>
-          <input
-            type='password'
-            id='password'
-            value={formValues.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <p style={{ color: 'red', fontWeight: 'bold' }}>{formErrors.password}</p>
-
-        <div className='button-container'>
-          <input type='submit' />
-        </div>
-
-        <div className='register'>
-          <Link to='/'>Already have an Account..?</Link>
-        </div>
-      </form>
-    </div>
-  );
+  const handleSubmit = (e) => {
+      const data = {
+          name:name,
+          gmail: email,
+          password: pass,
+      } 
+  
+  if(name.trim() === ''|| email.trim()===''|| pass.trim()==='') { 
+      alert('Please Enter Details');
+  }
+  if (details.some((user) => user.email === email)) {
+      alert('User already exists.');
+  }
+  else if (!isStrongPassword(pass)) {
+      alert("Please enter a strong password combination.");
+  }
+  else{
+      axios.post("http://127.0.0.1:8181/api/v1/auth/register", data);
+      console.log(data);
+      navigate("/Login");
+  }
+  
+};
+const isStrongPassword = (pass) => {
+  const minLength = 8;
+  const hasUpperCase = /[A-Z]/.test(pass);
+  const hasLowerCase = /[a-z]/.test(pass);
+  const hasNumber = /\d/.test(pass);
+  const hasSpecialChar = /[!@#$%^&*()]/.test(pass);
 
   return (
-    <div className='login'>
-      <div className='login-form'>
-        <div className='title'>User Form</div>
-        {isSubmit ? (
-          <div style={{ color: 'gray' }}>User is successfully logged in</div>
-        ) : (
-          renderSignup
-        )}
-      </div>
-    </div>
+      pass.length >= minLength &&
+    hasUpperCase &&
+    hasLowerCase &&
+    hasNumber &&
+    hasSpecialChar
   );
-}
+};
+
+  return (
+    <>
+      <div className={`${registerstyle.register} custom-signup`}>
+        <form onSubmit={handleSubmit}>
+          
+          <h1>Sign up</h1>
+          <label id="lab">Name</label>
+          <input
+            type="text"
+            name="username"
+            id="username"
+            onChange={(e) => setName(e.target.value)}
+            value={name}
+            required
+          />
+          <br/><br/>
+          <p className={basestyle.error}></p>
+          <label id="lab">Email</label>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            onChange={(e) => setEmail(e.target.value)}
+            value={email}
+            required
+          />
+          <br/>
+          <br/>
+          <p className={basestyle.error}></p>
+          <label id="lab">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            onChange={(e) => setPass(e.target.value)}
+            value={pass}
+            required
+          />
+          <button className={basestyle.button_common} type="submit">
+            Register
+          </button>
+        </form>
+        <NavLink to="/login">Already registered? Login</NavLink>
+      </div>
+    </>
+  );
+};
 
 export default Signup;

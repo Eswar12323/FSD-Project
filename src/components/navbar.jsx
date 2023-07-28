@@ -5,6 +5,7 @@ import { UserPlus} from "phosphor-react";
 import { Phone} from "phosphor-react";
 import { ShoppingBagOpen } from "phosphor-react";
 import { SignIn } from "phosphor-react";
+import Feedback from "../pages/login/Feedback";
 
 import "./navbar.css";
 
@@ -24,7 +25,7 @@ export const Navbar = () => {
         <Link to="/">
         <SignOut size={32} />
         </Link>
-        
+        <Link to="/feed">Feedback</Link>
       </div>
     </div>
   );

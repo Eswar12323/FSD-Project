@@ -26,7 +26,6 @@ const Home =()=>{
             <div className="footer-col">
               <h4>company</h4>
               <ul>
-                <li><a href="/about">ABOUT US</a></li>
                 <li><a href="/privacy">PRIVACY POLICY</a></li>
               </ul>
             </div>
